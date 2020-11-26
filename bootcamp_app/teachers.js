@@ -7,17 +7,22 @@ const pool = new Pool({
   database: 'bootcampx'
 });
 
+
 pool.query(`
-SELECT students.name as student,cohorts.name as cohorts,students.id as student_id
-FROM students
+SELECT DISTINCT teachers.name as teacher,cohorts.name
+FROM teachers
+JOIN assistance_requests
+ON teachers.id = assistance_requests.teacher_id
+JOIN students
+ON assistance_requests.student_id = students.id
 JOIN cohorts
 on students.cohort_id = cohorts.id
-WHERE cohorts.name LIKE '${process.argv[2]}%'
-LIMIT ${process.argv[3]};
+WHERE cohorts.name = 'JUL02'
+order by teachers.name;
 `)
   .then(res => {
     res.rows.forEach(user => {
-      console.log(`${user.student} has an id of ${user.student_id} and was in the ${user.cohorts} cohort`);
+      console.log(`${user.name}: ${user.teacher}`);
     });
   })
   .catch(err => console.error('query error', err.stack));
